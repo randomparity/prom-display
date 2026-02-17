@@ -1,0 +1,115 @@
+{{template "head" .}}
+
+{{template "prom_content_head" .}}
+
+<h1>Inference Server Monitor</h1>
+
+<h2>Service Status</h2>
+<table class="table table-condensed table-bordered">
+<thead>
+  <tr>
+    <th>Service</th>
+    <th>Status</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>Node Exporter</td>
+    <td>{{template "prom_query_drilldown" (args "up{job='node'}")}}</td>
+  </tr>
+  <tr>
+    <td>vLLM</td>
+    <td>{{template "prom_query_drilldown" (args "up{job='vllm'}")}}</td>
+  </tr>
+  <tr>
+    <td>llama.cpp</td>
+    <td>{{template "prom_query_drilldown" (args "up{job='llamacpp'}")}}</td>
+  </tr>
+</tbody>
+</table>
+
+<h2>Host Overview</h2>
+<table class="table table-condensed table-bordered">
+<tbody>
+  <tr>
+    <th>CPU Busy</th>
+    <td>{{template "prom_query_drilldown" (args "100 * (1 - avg(rate(node_cpu_seconds_total{mode='idle'}[5m])))" "%" "humanize")}}</td>
+  </tr>
+  <tr>
+    <th>Memory Used</th>
+    <td>{{template "prom_query_drilldown" (args "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)" "%" "humanize")}}</td>
+  </tr>
+  <tr>
+    <th>Load Average (1m / 5m / 15m)</th>
+    <td>
+      {{template "prom_query_drilldown" (args "node_load1")}} /
+      {{template "prom_query_drilldown" (args "node_load5")}} /
+      {{template "prom_query_drilldown" (args "node_load15")}}
+    </td>
+  </tr>
+  <tr>
+    <th>Uptime</th>
+    <td>{{template "prom_query_drilldown" (args "time() - node_boot_time_seconds" "" "humanizeDuration")}}</td>
+  </tr>
+</tbody>
+</table>
+
+<h2>vLLM Inference</h2>
+<table class="table table-condensed table-bordered">
+<tbody>
+  <tr>
+    <th>Requests Running</th>
+    <td>{{template "prom_query_drilldown" (args "vllm:num_requests_running" "" "humanize")}}</td>
+  </tr>
+  <tr>
+    <th>Requests Waiting</th>
+    <td>{{template "prom_query_drilldown" (args "vllm:num_requests_waiting" "" "humanize")}}</td>
+  </tr>
+  <tr>
+    <th>Generation Token Rate</th>
+    <td>{{template "prom_query_drilldown" (args "rate(vllm:generation_tokens_total[5m])" " tok/s" "humanize")}}</td>
+  </tr>
+  <tr>
+    <th>Prompt Token Rate</th>
+    <td>{{template "prom_query_drilldown" (args "rate(vllm:prompt_tokens_total[5m])" " tok/s" "humanize")}}</td>
+  </tr>
+  <tr>
+    <th>GPU KV Cache Usage</th>
+    <td>{{template "prom_query_drilldown" (args "vllm:gpu_cache_usage_perc" "%" "humanize")}}</td>
+  </tr>
+  <tr>
+    <th>p95 E2E Latency</th>
+    <td>{{template "prom_query_drilldown" (args "histogram_quantile(0.95, rate(vllm:e2e_request_latency_seconds_bucket[5m]))" "s" "humanize")}}</td>
+  </tr>
+</tbody>
+</table>
+
+<h2>llama.cpp Inference</h2>
+<table class="table table-condensed table-bordered">
+<tbody>
+  <tr>
+    <th>Requests Processing</th>
+    <td>{{template "prom_query_drilldown" (args "llamacpp:requests_processing" "" "humanize")}}</td>
+  </tr>
+  <tr>
+    <th>Requests Deferred</th>
+    <td>{{template "prom_query_drilldown" (args "llamacpp:requests_deferred" "" "humanize")}}</td>
+  </tr>
+  <tr>
+    <th>Predicted Token Rate</th>
+    <td>{{template "prom_query_drilldown" (args "rate(llamacpp:tokens_predicted_total[5m])" " tok/s" "humanize")}}</td>
+  </tr>
+  <tr>
+    <th>Evaluated Token Rate</th>
+    <td>{{template "prom_query_drilldown" (args "rate(llamacpp:tokens_evaluated_total[5m])" " tok/s" "humanize")}}</td>
+  </tr>
+  <tr>
+    <th>KV Cache Usage</th>
+    <td>{{template "prom_query_drilldown" (args "llamacpp:kv_cache_usage_ratio" "%" "humanize")}}</td>
+  </tr>
+</tbody>
+</table>
+
+{{template "prom_content_tail" .}}
+
+{{template "tail"}}
