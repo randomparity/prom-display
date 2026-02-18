@@ -70,6 +70,8 @@ connection errors, so you can start it before the server is ready.
 
 ## What You'll See
 
+![Dashboard Screenshot](screenshot.png)
+
 - **Service Status** — up/down indicators for node_exporter, vLLM, and llama.cpp
 - **Host Overview** — CPU busy %, memory used %, load averages, uptime
 - **vLLM Inference** — requests running/waiting, token throughput, GPU KV cache usage, p95 latency
