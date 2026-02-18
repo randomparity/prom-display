@@ -38,6 +38,27 @@ template support with `prom.lib`, Bootstrap, and the Rickshaw graphing library.
 
    http://localhost:9090/consoles/inference.html
 
+## Load Testing
+
+A simple load generator sends repeated inference requests so you can watch
+dashboard metrics update in real time:
+
+```bash
+python3 load-gen.py
+```
+
+Options:
+
+| Flag            | Default                    | Description                          |
+|-----------------|----------------------------|--------------------------------------|
+| `--url`         | `http://127.0.0.1:8080`   | Base URL (use `:8000` for vLLM)      |
+| `--max-tokens`  | `50`                       | Max tokens per completion            |
+| `--count`       | `0` (infinite)             | Number of requests, 0 = run forever  |
+| `--delay`       | `0`                        | Seconds to wait between requests     |
+
+The script uses only Python stdlib — no `pip install` needed. It retries on
+connection errors, so you can start it before the server is ready.
+
 ## Port Reference
 
 | Port | Service        |
